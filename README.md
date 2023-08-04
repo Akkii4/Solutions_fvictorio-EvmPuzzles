@@ -37,7 +37,8 @@ This allows execution to then reach the STOP opcode after it, halting the progra
 
 In summary:
 
-By setting msg.value so that CALLVALUE pushes the right value onto the stack, we can control where the JUMP instruction goes, landing us at the JUMPDEST we want. This lets us proceed to STOP and halt execution successfully.
+By setting msg.value so that CALLVALUE pushes the right value onto the stack, we can control where the JUMP instruction goes, landing us atthe JUMPDEST we want.
+This lets us proceed to STOP and halt execution successfully.
 ```
 
 [Puzzle 2](https://www.evm.codes/playground?callValue=4&unit=Wei&callData=&codeType=Bytecode&code=%2734380356FDFD5B00FDFD%27_&fork=shanghai) :
@@ -88,4 +89,123 @@ When JUMP executes, it will read 4 from the stack and jump to location 4 - hitti
 In summary:
 
 We pass 4-byte call data to make CALLDATASIZE push a 4, so JUMP goes where we want.
+```
+
+[Puzzle 4](https://www.evm.codes/playground?callValue=6&unit=Wei&callData=&codeType=Bytecode&code=%2734381856FDFDFDFDFDFD5B00%27_&fork=shanghai) :
+
+```
+The goal is to make the CODESIZE xor CALLVALUE equal 0xa.
+
+0xa is the location of the JUMPDEST we want to jump to.
+
+CODESIZE is fixed at 0xc (12 in decimal).
+
+We need to find a CALLVALUE that when XOR'ed with 0xc gives 0xa.
+
+Converting 0xc to binary is 1100 (in 4 bits).
+
+0xa in binary is 1010.
+
+Using XOR, we need a CALLVALUE where:
+
+1100 (CODESIZE)
+XOR
+0110 (CALLVALUE)
+= 1010 (0xa)
+
+Looking bit by bit, 0110 in binary XOR'd with 1100 gives 1010.
+
+0110 in hex is 0x6.
+
+So we need CALLVALUE of 0x6.
+
+This will make CODESIZE xor CALLVALUE equal 0xa, causing the JUMP to go to JUMPDEST at 0xa.
+
+In summary:
+
+We calculate the CALLVALUE of 0x6 that will make the XOR equation work out to jump to 0xa.
+```
+
+[Puzzle 5](https://www.evm.codes/playground?callValue=16&unit=Wei&callData=&codeType=Bytecode&code=%2734800261010014600C57FDFD5B00FDFD%27_&fork=shanghai) :
+
+```
+The goal is to make the JUMPI jump to the JUMPDEST at 0x0c.
+
+JUMPI will jump if the stack value below it is 1.
+
+Before JUMPI:
+
+- CALLVALUE (the amount sent) is duplicated
+- The duplicates are multiplied, squaring CALLVALUE
+- This result is compared to 0x0100 (256 decimal)
+- 1 is pushed if equal, 0 otherwise
+
+So we need to send a CALLVALUE that when squared equals 256.
+This will make the comparison push 1 onto the stack.
+
+The square of 16 is 256.
+
+So sending CALLVALUE=16 will:
+
+- Duplicate to 16, 16
+- Square to 256
+- Equals 256 so push 1
+
+Then JUMPI sees a 1 below it on the stack so it jumps to 0x0c.
+
+In summary:
+
+We calculate CALLVALUE=16 to make the math work out so JUMPI jumps to the target JUMPDEST.
+```
+
+[Puzzle 6](https://www.evm.codes/playground?callValue=0&unit=Wei&callData=0x000000000000000000000000000000000000000000000000000000000000000a&codeType=Bytecode&code=%2760003556FDFDFDFDFDFD5B00%27_&fork=shanghai) :
+
+```
+The goal here is to make CALLDATALOAD(0) return 0x0a.
+
+CALLDATALOAD loads 32 bytes of data from calldata into memory.
+
+The 0 offset means it will load the first 32 bytes.
+
+This loaded value needs to be 0x0a so that the JUMP lands on the JUMPDEST at 0x0a.
+
+To load 0x0a, we have to pass 32 bytes of calldata where the first byte is 0x0a.
+
+0x0a is only 1 byte long. So we pad it to 32 bytes like this:
+
+0x000000000000000000000000000000000000000000000000000000000000000a
+
+This 32-byte sequence has 0x0a as the first byte.
+
+When CALLDATALOAD(0) loads it, only the first byte matters.
+
+It will return 0x0a which makes JUMP go where we want.
+
+In summary:
+
+We pad the 1-byte 0x0a to 32 bytes and pass that as calldata so CALLDATALOAD gives us 0x0a.
+```
+
+[Puzzle ](&fork=shanghai) :
+
+```
+
+```
+
+[Puzzle ](&fork=shanghai) :
+
+```
+
+```
+
+[Puzzle ](&fork=shanghai) :
+
+```
+
+```
+
+[Puzzle ](&fork=shanghai) :
+
+```
+
 ```
