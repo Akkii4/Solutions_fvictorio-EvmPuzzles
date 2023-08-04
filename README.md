@@ -186,10 +186,51 @@ In summary:
 We pad the 1-byte 0x0a to 32 bytes and pass that as calldata so CALLDATALOAD gives us 0x0a.
 ```
 
-[Puzzle ](&fork=shanghai) :
+[Puzzle 7](https://www.evm.codes/playground?callValue=0&unit=Wei&callData=0x608060005260015ff3&codeType=Bytecode&code=%2736600080373660006000F03B600114601357FD5B00%27_&fork=shanghai) :
 
 ```
+The goal is to make the JUMPI jump to the JUMPDEST at location 0xd.
 
+JUMPI jumps if the top stack value is 1.
+
+We need to make the EQ comparison before it push 1.
+
+The EQ compares EXTCODESIZE from the CREATE result of 1.
+
+So we need to create a CALLDATA of a contract with EXTCODESIZE of 1 byte.
+```
+
+[Puzzle 8](https://www.evm.codes/playground?callValue=0&unit=Wei&callData=0x60fd6000526001601ff3&codeType=Bytecode&code=%2736600080373660006000F03B600114601357FD5B00%27_&fork=shanghai) :
+
+```
+The goal is to deploy a contract using CREATE that reverts when called.
+
+This will make the CALL return 0.
+
+Comparing 0 to 0 will be true, pushing 1 to stack.
+
+The JUMP will then jump over the reverts.
+
+To create a reverting contract:
+
+We need calldata that has just a REVERT opcode.
+0xfd is the REVERT opcode.
+We'll pad it to 3 bytes to make a valid contract.
+So the calldata can just be:
+
+0x60fd6000526001601ff3
+
+This contains:
+
+0xfd - REVERT opcode
+Padding to 3 bytes
+When CREATE deploys this:
+
+Calling the contract will just REVERT
+CALL returns 0
+0 compared to 0 is true
+JUMP succeeds
+So deploying a simple REVERT contract solves this puzzle.
 ```
 
 [Puzzle ](&fork=shanghai) :
