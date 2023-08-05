@@ -233,20 +233,62 @@ JUMP succeeds
 So deploying a simple REVERT contract solves this puzzle.
 ```
 
-[Puzzle ](&fork=shanghai) :
+[Puzzle 9](https://www.evm.codes/playground?callValue=2&unit=Wei&callData=0x01020304&codeType=Bytecode&code=%2736600310600957FDFD5B343602600814601457FD5B00%27_&fork=shanghai) :
 
 ```
+The goal is to make CALDATASIZE * CALLVALUE = 8
 
+CALDATASIZE needs to be > 3 based on the first check.
+
+The smallest size > 3 is 4 bytes.
+
+So we can pass any 4 bytes of data, like 0x01020304.
+
+Now CALDATASIZE will be 4.
+
+To get 8 when multiplied by CALDATASIZE, CALLVALUE needs to be 2.
+
+Because:
+
+CALDATASIZE = 4
+CALLVALUE = 2
+
+4 * 2 = 8
+
+This will make the equality comparison true.
+
+So in summary:
+
+- Pass 4 bytes as calldata to make SIZE = 4
+- Pass CALLVALUE of 2
+- 4 * 2 is 8, so multiplication passes the check
 ```
 
-[Puzzle ](&fork=shanghai) :
+[Puzzle 10](https://www.evm.codes/playground?callValue=15&unit=Wei&callData=0x010203&codeType=Bytecode&code=%2738349011600857FD5B3661000390061534600A0157FDFDFDFD5B00%27_&fork=shanghai) :
 
 ```
+The goal is to:
 
-```
+1. Make CALDATASIZE % 3 == 0
+2. Make CALLVALUE + 0xa == 0x19
 
-[Puzzle ](&fork=shanghai) :
+To make CALDATASIZE % 3 == 0:
 
-```
+- CALDATASIZE just needs to be divisible by 3
+- Sending any 3 bytes of data works, e.g. 0x010203
 
+Now CALDATASIZE is 3.
+
+For CALLVALUE:
+
+- Needs to be < CODESIZE which is 0x1b = 27
+- Added to 0xa needs to equal 0x19
+- 0x19 - 0xa is 0xf = 15
+- So CALLVALUE of 15 works
+
+15 < 27, so CALLVALUE is valid.
+
+15 + 0xa = 0x19, so JUMP destination reached.
+
+So in summary, calldata of 3 bytes and CALLVALUE of 15 solves it.
 ```
